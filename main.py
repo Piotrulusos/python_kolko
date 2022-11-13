@@ -1,75 +1,65 @@
-import random
+import numpy as np
+import os
 
 
-class Karta(object):
-    figura = ['AS', 'KROL', 'DAMA', 'JOPEK', '10', '9', '8', '7', '6', '5', '4', '3', '2']
-    kolor = ['kier', 'pik', 'karo', 'trefl']
+class map:
+    def __init__(self, columns, rows):
+        self.start_x = None
+        self.start_y = None
+        self.end_x = None
+        self.end_y = None
+        self.map = np.full((rows, columns), '.', str)
 
-    def __init__(self, figura, kolor):
-        self.figura = figura
-        self.kolor = kolor
+    def setStart(self, value_x, value_y):
+        self.start_x = value_x
+        self.start_y = value_y
+        self.map[self.start_y][self.start_x] = 'S'
+
+    def setEnd(self, value_x, value_y):
+        self.end_x = value_x
+        self.end_y = value_y
+        self.map[self.end_y][self.end_x] = 'E'
+
+    def clearPosition(self, player):
+        self.map[player.current_y][player.current_x] = '.'
+
+    def updatePosition(self, player):
+        self.map[player.current_y][player.current_x] = 'P'
 
     def __str__(self) -> str:
-        x = self.figura + "-" + self.kolor
-        return x
+        return str(self.map)
 
 
-class Gracz(object):
+class player:
+    def __init__(self, start_x, start_y) -> None:
+        self.current_x = start_x
+        self.current_y = start_y
 
-    def __init__(self):
-        self.karty = []
-
-    def __str__(self):
-        if self.karty:
-            reka = ""
-            for karty in self.karty:
-                reka += str(karty) + " "
-        else:
-            reka = "Pusta"
-        return reka
-
-    def add(self, karta):
-        self.karty.append(karta)
-
-    def give(self, karta, inny_gracz):
-        self.karty.remove(karta)
-        inny_gracz.add(karta)
+    def changeOfPosition(self, direction):
+        if direction == "W" or direction == 'w':
+            if self.current_y >= 1:
+                self.current_y -= 1
+        elif direction == "S" or direction == 's':
+            if self.current_y <= 3:
+                self.current_y += 1
+        elif direction == "A" or direction == 'a':
+            if self.current_x >= 1:
+                self.current_x -= 1
+        elif direction == "D" or direction == 'd':
+            if self.current_x <= 3:
+                self.current_x += 1
 
 
-class Talia(Gracz):
+mapa = map(5, 5)
+mapa.setStart(0, 0)
+mapa.setEnd(4, 4)
+bob = player(mapa.start_x, mapa.start_y)
 
-    def talia(self):
-        for kolor in Karta.kolor:
-            for figura in Karta.figura:
-                self.add(Karta(figura, kolor))
-
-    def tasowanie(self):
-        random.shuffle(self.karty)
-
-    def rozdawanie(self, gracze, ile_kart):
-        for x in range(ile_kart):
-            for y in gracze:
-                if self.karty:
-                    pierwsza = self.karty[0]
-                    self.give(pierwsza, y)
-                else:
-                    print("brak kart")
-
-
-talia1 = Talia()
-talia1.talia()
-print("____________________________________")
-print(talia1)
-talia1.tasowanie()
-print("____________________________________")
-print(talia1)
-
-karty1 = Gracz()
-karty2 = Gracz()
-gracze = [karty1, karty2]
-
-talia1.rozdawanie(gracze, 5)
-print("____________________________________")
-print(karty1)
-print("____________________________________")
-print(karty2)
+while bob.current_x != mapa.end_x or bob.current_y != mapa.end_y:
+    os.system('cls')
+    print(mapa)
+    direction = input("W którym kierunku chcesz sie poruszyc?: ")
+    mapa.clearPosition(bob)
+    bob.changeOfPosition(direction)
+    mapa.updatePosition(bob)
+print("Gra zakończona, koniec zdobyty! Brawo!")
